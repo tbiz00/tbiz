@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기업 추천 사업 조회</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        h1 {
+            color: #343a40;
+            margin-bottom: 20px;
+        }
+        .search-container {
+            background: linear-gradient(135deg, #007bff, #6f42c1);
+            padding: 20px;
+            border-radius: 8px;
+            color: white;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .card-container {
+            margin-top: 20px;
+        }
+        .company-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            transition: transform 0.2s;
+        }
+        .company-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .company-card h3 {
+            color: #007bff;
+        }
+        .recommendation {
+            margin-top: 20px;
+        }
+        .recommendation .title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #343a40;
+            display: flex;
+            align-items: center;
+        }
+        .recommendation .title i {
+            color: #007bff;
+            margin-right: 10px;
+        }
+        .recommendation .content {
+            background-color: #f1f1f1;
+            border-radius: 6px;
+            padding: 10px 15px;
+            margin-top: 5px;
+            font-size: 16px;
+            line-height: 1.5;
+            color: #495057;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f8f9fa;
+            color: #333;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background: #094577f6;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container my-5">
+        <h1>사업 검색</h1>
+        <div class="form-group">
+            <label for="기업명">기업명</label>
+            <input type="text" id="companyInput"  placeholder="기업명을 입력하세요">
+        </div>
+        <div class="form-group">
+            <label for="매출액">매출액(백만원)</label>
+            <input type="number" id="매출액" placeholder="예: 500">
+        </div>
+        <div class="form-group">
+            <label for="설립일연월">설립일(연월)</label>
+            <input type="text" id="설립일연월" placeholder="예: 202411">
+        </div>
+        <div class="form-group">
+            <label for="기관">기관</label>
+            <select id="기관">
+                <option value="">전체</option>
+                <!-- 옵션은 JavaScript로 동적으로 추가됩니다 -->
+            </select>
+            
+        </div>
+        <div class="form-group">
+            <label for="지역제한">지역 제한</label>
+            <select id="지역제한">
+                <!-- 옵션은 JavaScript로 동적으로 추가됩니다 -->
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="특허권보유">특허권 보유 여부</label>
+            <select id="특허권보유">
+                <option value="">전체</option>
+                <option value="X">X</option>
+                <option value="O">O</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="산업코드">산업 코드</label>
+            <select id="산업코드">
+                <!-- 옵션은 JavaScript로 동적으로 추가됩니다 -->
+            </select>
+        </div>
+        <button id="searchBtn">검색</button>
+
+        <table id="resultTable">
+            <thead>
+                <tr>
+                    <th>사업명</th>
+                    <th>기관</th>
+                    <th>지역 제한</th>
+                    <th>특허권 보유</th>
+                    <th>산업 코드</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            let jsonData = []; // 엑셀 데이터를 저장할 변수
+
+            // 엑셀 파일 경로
+            const filePath = '기업매칭사업 V4.xlsx';
+
+            // 엑셀 파일 읽기
+            fetch(filePath)
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.arrayBuffer();
+                })
+                .then(data => {
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[1]; 
+                    const sheet = workbook.Sheets[sheetName];
+
+                    // 데이터를 JSON 형식으로 변환
+                    jsonData = XLSX.utils.sheet_to_json(sheet);
+                    
+
+                    console.log(jsonData);
+
+                    // 초기화: 셀렉트 박스 채우기
+                    populateYearSelect(jsonData);
+                    populateIndustrySelect(jsonData);
+                    populateWhereSelect(jsonData);
+
+                  
+                })
+                .catch(error => {
+                    console.error('파일 로드 중 오류 발생:', error);
+                });
+                
+            // 엔터키 이벤트와 검색 버튼 클릭 이벤트를 처리
+            $('#companyInput').on('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+
+            $('#searchBtn').on('click', performSearch);
+           
+            // 검색 기능 함수
+            function performSearch() {
+                const input = $('#companyInput').val().trim().toLowerCase(); // 입력값을 소문자로 변환
+                if (!input) {
+                    alert('기업명을 입력하세요!');
+                    return;
+                }
+
+                // 입력 값 가져오기
+                const 매출액 = document.getElementById("매출액").value;
+                const 설립일연월 = document.getElementById("설립일연월").value;
+                const 기관 = document.getElementById("기관").value.trim();
+                const 지역제한 = document.getElementById("지역제한").value.trim();
+                const 특허권보유 = document.getElementById("특허권보유").value;
+                const 산업코드 = document.getElementById("산업코드").value.trim();
+                var 몇개월 = 0;
+              
+                if(설립일연월 != '' && 설립일연월.length == 6){
+                          const { year, month } = parseYearMonth(yearMonth);
+                        몇개월=calculateMonthsElapsed(year, month);
+                        console.log(몇개월);
+                }
+
+                // LIKE 검색 구현 (입력값이 포함된 기업명을 찾음)
+                const filteredData = jsonData.filter(item => {
+                    if(item.매출액최대=='없음')item.매출액최대=9999999999999;
+                    
+                return (
+
+                    (!매출액 || (parseInt(item.매출액최소) <= parseInt(매출액) && parseInt(매출액) <= parseInt(item.매출액최대) )) &&
+                    (!설립일연도 || (parseInt(item.설립일최소) <= parseInt(몇개월) && parseInt(몇개월) <= parseInt(item.설립일최대) )) &&
+                    (!기관 || item.기관.includes(기관)) &&
+                    (!지역제한 || item.지역제한.includes("없음") || item.지역제한.includes(지역제한)) &&
+                    (!특허권보유 || item.특허권보유여부 === 특허권보유) &&
+                    (!산업코드 || item.산업코드.includes("제한없음") || item.산업코드.includes(산업코드))
+                );
+            });
+
+                if (filteredData.length === 0) {
+                    alert('해당 기업에 대한 추천 사업이 없습니다.');
+                }
+
+
+                // 결과 렌더링
+                const tbody = document.querySelector("#resultTable tbody");
+                tbody.innerHTML = filteredData.map(item => `
+                    <tr>
+                        <td>${item.사업명}</td>
+                        <td>${item.기관}</td>
+                        <td>${item.지역제한}</td>
+                        <td>${item.특허권보유여부}</td>
+                        <td>${item.산업코드}</td>
+                    </tr>
+                `).join("");
+
+
+            }
+
+
+        
+        });
+
+
+        function parseYearMonth(yearMonth) {
+            // 입력받은 정수에서 년과 월 분리
+            const year = Math.floor(yearMonth / 100); // 앞 4자리: 년도
+            const month = yearMonth % 100;           // 뒤 2자리: 월
+            return { year, month };
+        }
+
+
+        function calculateMonthsElapsed(inputYear, inputMonth) {
+            // 현재 날짜를 가져옵니다.
+            const currentDate = new Date();
+            const currentYear = currentDate.getFullYear();
+            const currentMonth = currentDate.getMonth() + 1; // getMonth()는 0부터 시작하므로 +1 필요
+
+            // 입력받은 년월을 기준으로 Date 객체를 생성합니다.
+            const inputDate = new Date(inputYear, inputMonth - 1); // Month는 0부터 시작하므로 -1 필요
+
+            // 현재 년월을 월 단위로 변환
+            const totalCurrentMonths = currentYear * 12 + currentMonth;
+            // 입력된 년월을 월 단위로 변환
+            const totalInputMonths = inputYear * 12 + inputMonth;
+
+            // 두 월의 차이를 계산합니다.
+            const monthsElapsed = totalCurrentMonths - totalInputMonths;
+
+            return monthsElapsed;
+        }
+
+
+         // 유니크한 설립일 제한(연도) 값 추출 후 셀렉트 박스에 추가
+         function populateYearSelect(jsonData) {
+            const uniqueYears = [...new Set(jsonData.map(item => item.기관))]; // 중복 제거
+            const select = document.getElementById("기관");
+
+            // 옵션 추가
+            uniqueYears.forEach(code => {
+                const option = document.createElement("option");
+                option.value = code;
+                //option.textContent = year === "없음" ? "제한 없음" : code;
+                option.textContent = code;
+                select.appendChild(option);
+            });
+        }
+
+          // 유니크한 산업코드 추출 및 셀렉트 박스에 추가
+          function populateIndustrySelect(jsonData) {
+            const industrySet = new Set();
+            jsonData.forEach(item => {
+                item.산업코드.split(',').forEach(code => industrySet.add(code.trim()));
+            });
+            
+            industrySet.delete("제한없음");
+
+            const industryCodes = ["제한없음", ...Array.from(industrySet)];
+            const select = document.getElementById("산업코드");
+
+            industryCodes.forEach(code => {
+                const option = document.createElement("option");
+                option.value = code;
+                option.textContent = code;
+                select.appendChild(option);
+            });
+        }    
+
+        // 유니크한 지역제한 추출 및 셀렉트 박스에 추가
+        function populateWhereSelect(jsonData) {
+            const industrySet = new Set();
+            jsonData.forEach(item => {
+                item.지역제한.split(',').forEach(code => industrySet.add(code.trim()));
+            });
+            
+            industrySet.delete("없음");
+
+            const industryCodes = ["없음", ...Array.from(industrySet)];
+            const select = document.getElementById("지역제한");
+
+            industryCodes.forEach(code => {
+                const option = document.createElement("option");
+                option.value = code;
+                option.textContent = code;
+                select.appendChild(option);
+            });
+        }    
+        
+
+    </script>
+</body>
+</html>
+
