@@ -278,7 +278,7 @@
                 return (
 
                     (!매출액 || (parseInt(item.매출액최소) <= parseInt(매출액) && parseInt(매출액) <= parseInt(item.매출액최대) )) &&
-                    (!설립일연도 || (parseInt(item.설립일최소) <= parseInt(몇개월) && parseInt(몇개월) <= parseInt(item.설립일최대) )) &&
+                    (!설립일연월 || (parseInt(item.설립일최소) <= parseInt(몇개월) && parseInt(몇개월) <= parseInt(item.설립일최대) )) &&
                     (!기관 || item.기관.includes(기관)) &&
                     (!지역제한 || item.지역제한.includes("없음") || item.지역제한.includes(지역제한)) &&
                     (!특허권보유 || item.특허권보유여부 === 특허권보유) &&
