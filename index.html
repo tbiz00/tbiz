@@ -266,7 +266,7 @@
                 var 몇개월 = 0;
               
                 if(설립일연월 != '' && 설립일연월.length == 6){
-                          const { year, month } = parseYearMonth(yearMonth);
+                          const { year, month } = parseYearMonth(설립일연월);
                         몇개월=calculateMonthsElapsed(year, month);
                         console.log(몇개월);
                 }
